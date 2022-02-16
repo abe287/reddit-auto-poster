@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="referrer" content="no-referrer">
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    
+    <title>Reddit Accoutns</title>
+  </head>
+  <body>
+    <br>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded">
+          <a class="navbar-brand" href="/"><b>Reddit Scheduler</b></a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample09" aria-controls="navbarsExample09" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+  
+          <div class="collapse navbar-collapse" id="navbarsExample09">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="/">Queue</a>
+              </li>
+              <li class="nav-item active">
+                <a class="nav-link" href="/accounts">Accounts<span class="sr-only">(current)</span></a>
+              </li>
+            </ul>
+
+          </div>
+        </nav>
+
+        <br>
+        
+        {% if accounts|length == 0 %}
+        <main role="main">
+          <div class="jumbotron bg-dark text-white">
+            <div class="col-sm-8 mx-auto">
+              <h1>No Linked Accounts</h1>
+              <p>You currently have no Reddit accounts linked to the application. Please add one to get started by clicking on the button down below.</p>
+              <p>
+                <a id="add_account" class="btn btn-primary" href="/reddit_auth">Add Account</a>
+              </p>
+            </div>
+          </div>
+        </main>
+        {% else %}
+            <div class="row">
+                <div class="col-sm-12">
+                    <h5 class="float-left p-1"><b>Reddit Accounts</b></h5>
+                    <a id="add_account" class="btn btn-primary float-right" href="/reddit_auth">Add Account</a>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+            {% for account in accounts %}
+                <div id="{{ account['id'] }}" class="col-sm-12">
+                    <div class="card bg-dark text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Reddit Account</h5>
+                            <p class="card-text">u/{{ account['username'] }}</p>
+                            <button id="remove_account" account_id="{{ account['id'] }}" class="btn btn-danger">Remove Account</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='assets/js/accounts.js') }}"></script>
+  </body>
+</html>

@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="referrer" content="no-referrer">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Reddit Scheduler</title>
+  </head>
+  <body>
+    <br>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded">
+          <a class="navbar-brand" href="/"><b>Reddit Scheduler</b></a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample09" aria-controls="navbarsExample09" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+  
+          <div class="collapse navbar-collapse" id="navbarsExample09">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item active">
+                <a class="nav-link" href="/">Queue<span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/accounts">Accounts</a>
+              </li>
+            </ul>
+
+          </div>
+        </nav>
+
+        <br>
+        
+        {% if posts|length == 0 %}
+        <main id="post_disclaimer" role="main">
+          <div class="jumbotron bg-dark text-white">
+            <div class="col-sm-8 mx-auto">
+              <h1>No scheduled posts</h1>
+              <p>You currently have no posts scheduled for posting. Add some by clicking on the button below.</p>
+              <p>Please make sure to link your reddit account before attempting to schedule a post. If you have not linked your account already please do so by going to <a href="/accounts">accounts</a>.</p>
+              <p>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#scheduleTextPost">Schedule Text</button>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#scheduleMediaPost">Schedule Media</button>
+              </p>
+            </div>
+          </div>
+        </main>
+        {% else %}
+            <div class="row" id="header_buttons">
+                <div class="col-sm-12">
+                    <h5 class="float-left p-1"><b>Scheduled Posts</b></h5>
+                    <p class="float-right">
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#scheduleTextPost">Schedule Text</button>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#scheduleMediaPost">Schedule Media</button>
+                    </p>
+                </div>
+            </div>
+            
+            <div id="post_container" class="row">
+            {% for post in posts %}
+                {% if post['post_type'] == 'text' %}
+                    <div id="{{ post['id'] }}" class="col-sm-12 mb-2">
+                        <div class="card bg-dark text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ post['title'] }}</h5>
+
+                                <p class="card-text">{{ post['body']|safe }}</p>
+
+                                <button post_id="{{ post['id'] }}" id="remove_post" class="btn btn-danger">Remove Post</button>
+                                <button post_id="{{ post['id'] }}" id="edit_post" class="btn btn-white" data-toggle="modal" data-target="#updatePost">Edit Post</button>
+
+                                <span class="float-right badge badge-secondary m-1">{{ post['string_timestamp'] }}</span>
+                                <span class="float-right badge badge-secondary m-1">r/{{ post['subreddit'] }}</span>
+                                <span class="float-right badge badge-secondary m-1">u/{{ post['account_username'] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div id="{{ post['id'] }}" class="col-sm-12 mb-2">
+                        <div class="card bg-dark text-white">
+                            {% if post['content_type'] == 'image/png' or post['content_type'] == 'image/jpeg' %}
+                                <img class="card-img-top" src="{{ post['media_url'] }}" referrerPolicy="no-referrer">
+                            {% else %}
+                                <video controls>
+                                    <source src="{{ post['media_url'] }}" type="video/mp4">
+                                </video>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ post['title'] }}</h5>
+
+                                <button post_id="{{ post['id'] }}" id="remove_post" class="btn btn-danger">Remove Post</button>
+                                <button post_id="{{ post['id'] }}" id="edit_post" class="btn btn-white" data-toggle="modal" data-target="#updatePost">Edit Post</button>
+                                
+                                <span class="float-right badge badge-secondary m-1">{{ post['string_timestamp'] }}</span>
+                                <span class="float-right badge badge-secondary m-1">r/{{ post['subreddit'] }}</span>
+                                <span class="float-right badge badge-secondary m-1">u/{{ post['account_username'] }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+
+    <!-- Schedule Text Post Modal -->
+    <div class="modal fade bd-example-modal-lg" id="scheduleTextPost" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Schedule Text Post</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input id="text_title" class="form-control" placeholder="Post Title">
+                </div>
+
+                <div class="form-group">
+                    <label>Post body</label>
+                    <textarea id="text_body" class="form-control" rows="7" style="resize: none"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Subreddit</label>
+                    <input id="text_subreddit" class="form-control" placeholder="subreddit">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div class="col">
+                            <label>Date</label>
+                            <input id="text_date" type="text" class="form-control" placeholder="01/01/2000">
+                        </div>
+                        <div class="col">
+                            <label>Time</label>
+                            <input id="text_time" type="text" class="form-control" placeholder="01:00 PM">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Account</label>
+                    <select class="form-control" id="text_account">
+                        <option selected value=""></option>
+                        {% for account in accounts %}
+                        <option value="{{ account['id'] }}">{{ account['username'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button id="text_schedule_button" type="button" class="btn btn-primary">Schedule</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Schedule Media Post Modal -->
+    <div class="modal fade bd-example-modal-lg" id="scheduleMediaPost" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Schedule Media Post</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input id="media_title" class="form-control" placeholder="Post Title">
+                </div>
+
+                <div class="form-group">
+                    <label>Media File</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">Upload</span>
+                        </div>
+                        <div class="custom-file">
+                          <input id="media_post_file" type="file" class="custom-file-input" id="inputGroupFile01">
+                          <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                        </div>
+                      </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Subreddit</label>
+                    <input id="media_subreddit" class="form-control" placeholder="subreddit">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div class="col">
+                            <label>Date</label>
+                            <input id="media_date" type="text" class="form-control" placeholder="01/01/2000">
+                        </div>
+                        <div class="col">
+                            <label>Time</label>
+                            <input id="media_time" type="text" class="form-control" placeholder="01:00 PM">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Account</label>
+                    <select class="form-control" id="media_account">
+                        <option selected value=""></option>
+                        {% for account in accounts %}
+                        <option value="{{ account['id'] }}">{{ account['username'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button id="media_schedule_button" type="button" class="btn btn-primary">Schedule</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Edit Post Modal -->
+    <div class="modal fade bd-example-modal-lg" id="updatePost" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div id="update_post_content" class="modal-content">
+                
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='assets/js/queue.js') }}"></script>
+</body>
+</html>
