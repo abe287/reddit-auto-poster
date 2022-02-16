@@ -4,7 +4,9 @@ This is a flask web app that lets you schedule posts for Reddit. You can schedul
 ## Setup
 #### Part 1
 You will first need to get your Reddit API keys, you will have to set up your very own Reddit app to get these keys. Please go to the link down below and click on create app at the bottom of the page.
+
 https://www.reddit.com/prefs/apps/
+
 Fill in the fields as shown in the image below. The name and description can be whatever you want, but make sure to select web app and set the redirect URI to http://127.0.0.1:5000/reddit_response
 ![alt text](https://i.ibb.co/qYKvfCt/make-app.png)
 Once you create your Reddit app you should see the application on the same page along with your client id and client secret keys. Look at the image below for reference
